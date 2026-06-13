@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 
-type LeadPayload = {
-  name?: string;
-  phone?: string;
-  message?: string;
-};
+import { leadSchema, type LeadPayload } from "@/lib/lead";
 
 const googleFormsEndpoint = process.env.GOOGLE_FORMS_ENDPOINT;
 const googleNameField = process.env.GOOGLE_FORMS_NAME_FIELD;
@@ -14,22 +10,28 @@ const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
 const telegramChatId = process.env.TELEGRAM_CHAT_ID;
 
 export async function POST(request: Request) {
-  const payload = (await request.json()) as LeadPayload;
-  const name = payload.name?.trim();
-  const phone = payload.phone?.trim();
-  const message = payload.message?.trim();
+  let rawPayload: unknown;
 
-  if (!name || !phone) {
+  try {
+    rawPayload = await request.json();
+  } catch {
+    return NextResponse.json({ ok: false, message: "Не удалось обработать форму. Проверьте данные и попробуйте еще раз." }, { status: 400 });
+  }
+
+  const parsed = leadSchema.safeParse(rawPayload);
+
+  if (!parsed.success) {
     return NextResponse.json(
-      { ok: false, message: "Укажите имя и телефон." },
+      { ok: false, message: parsed.error.issues[0]?.message ?? "Проверьте корректность телефона и обязательных полей." },
       { status: 400 },
     );
   }
 
-  const results = await Promise.allSettled([
-    sendTelegram({ name, phone, message }),
-    sendGoogleForms({ name, phone, message }),
-  ]);
+  const payload = parsed.data;
+
+  if (payload.website) {
+    return NextResponse.json({ ok: true, message: "Заявка принята." });
+  }
 
   const configuredTargets = [
     telegramBotToken && telegramChatId ? "telegram" : null,
@@ -37,33 +39,35 @@ export async function POST(request: Request) {
   ].filter(Boolean);
 
   if (configuredTargets.length === 0) {
-    return NextResponse.json({
-      ok: true,
-      message:
-        "Заявка принята на сайте. Чтобы включить отправку, заполните Telegram и Google Forms переменные в .env.local.",
-      debug: results.map((result) => result.status),
-    });
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "Форма временно недоступна. Позвоните нам или напишите в Telegram.",
+      },
+      { status: 503 },
+    );
   }
 
-  const hasSuccess = results.some((result) => result.status === "fulfilled" && result.value);
+  const results = await Promise.allSettled([sendTelegram(payload), sendGoogleForms(payload)]);
+  const hasSuccess = results.some((result) => result.status === "fulfilled" && result.value === true);
 
   if (!hasSuccess) {
     return NextResponse.json(
-      { ok: false, message: "Не удалось отправить заявку. Попробуйте позвонить, написать в Telegram или Max." },
+      { ok: false, message: "Заявка не доставлена. Позвоните нам или напишите в Telegram, чтобы мы точно получили сообщение." },
       { status: 502 },
     );
   }
 
-  return NextResponse.json({ ok: true, message: "Заявка отправлена. Мы свяжемся с вами." });
+  return NextResponse.json({ ok: true, message: "Заявка доставлена. Мы свяжемся с вами." });
 }
 
-async function sendTelegram(payload: Required<Pick<LeadPayload, "name" | "phone">> & Pick<LeadPayload, "message">) {
+async function sendTelegram(payload: LeadPayload) {
   if (!telegramBotToken || !telegramChatId) {
     return false;
   }
 
   const text = [
-    "Новая заявка с сайта «РеалТермо»",
+    'Новая заявка с сайта "РеалТермо"',
     `Имя: ${payload.name}`,
     `Телефон: ${payload.phone}`,
     payload.message ? `Что интересует: ${payload.message}` : null,
@@ -84,7 +88,7 @@ async function sendTelegram(payload: Required<Pick<LeadPayload, "name" | "phone"
   return response.ok;
 }
 
-async function sendGoogleForms(payload: Required<Pick<LeadPayload, "name" | "phone">> & Pick<LeadPayload, "message">) {
+async function sendGoogleForms(payload: LeadPayload) {
   if (!googleFormsEndpoint || !googleNameField || !googlePhoneField) {
     return false;
   }
@@ -103,5 +107,5 @@ async function sendGoogleForms(payload: Required<Pick<LeadPayload, "name" | "pho
     body: formData.toString(),
   });
 
-  return response.ok || response.status === 0;
+  return response.ok;
 }

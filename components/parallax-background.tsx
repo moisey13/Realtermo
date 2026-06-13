@@ -1,17 +1,35 @@
 "use client";
 
+import Image from "next/image";
+
 import frame1 from "@/anima/g1.png";
+import frame2 from "@/animaH/h1.png";
 
 export function ParallaxBackground() {
   return (
     <div className="parallax-stage" aria-hidden="true">
-      <img
+      <Image
         alt=""
         className="parallax-frame"
         draggable={false}
-        src={frame1.src}
+        fill
+        priority
+        sizes="100vw"
+        src={frame1}
         style={{
           transform: "translate3d(-50%, -50%, 0) scale(1.08)",
+        }}
+      />
+      <Image
+        alt=""
+        className="parallax-frame parallax-frame-secondary"
+        draggable={false}
+        fill
+        priority
+        sizes="100vw"
+        src={frame2}
+        style={{
+          transform: "translate3d(-50%, -50%, 0) scale(1.04)",
         }}
       />
       <div className="parallax-veil" />

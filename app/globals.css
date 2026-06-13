@@ -33,6 +33,7 @@ html {
 
 body {
   min-height: 100vh;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top left, rgba(0, 153, 255, 0.24), transparent 34rem),
     radial-gradient(circle at 78% 12%, rgba(31, 116, 255, 0.16), transparent 28rem),
@@ -44,7 +45,7 @@ body {
 
 .parallax-stage {
   position: fixed;
-  inset: -12vh -7vw;
+  inset: 0;
   z-index: -3;
   overflow: hidden;
   pointer-events: none;
@@ -52,18 +53,24 @@ body {
 
 .parallax-frame {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  min-height: 100%;
-  min-width: 100%;
-  width: auto;
-  height: auto;
-  opacity: 0.42;
+  inset: -8vh -10vw;
+  width: calc(100% + 20vw);
+  height: calc(100% + 16vh);
+  opacity: 0.38;
   object-fit: cover;
-  object-position: center;
+  object-position: center top;
   filter: blur(0.15px) saturate(1.14) contrast(1.08);
   user-select: none;
   will-change: transform;
+}
+
+.parallax-frame-secondary {
+  inset: -6vh -12vw;
+  width: calc(100% + 24vw);
+  height: calc(100% + 14vh);
+  opacity: 0.16;
+  object-position: right top;
+  mix-blend-mode: screen;
 }
 
 .parallax-veil {

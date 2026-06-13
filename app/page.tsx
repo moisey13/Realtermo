@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -19,21 +20,21 @@ import {
 
 import { LeadForm } from "@/components/lead-form";
 import { ParallaxBackground } from "@/components/parallax-background";
+import {
+  address,
+  companyName,
+  maxHref,
+  phone,
+  phoneHref,
+  telegram,
+  telegramHref,
+  yandexMapHref,
+} from "@/lib/site";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
-const phone = "+7 (905) 067-0444";
-const phoneHref = "tel:+79050670444";
-const telegram = "@Realtermo";
-const telegramHref = "https://t.me/Realtermo";
-const max = "Max";
-const maxHref =
-  "https://max.ru/u/f9LHodD0cOL4B5zNdJvPnFCG1AifWDiZFUBke9hDBViEEVK_5hcEM5nwp0w";
-const yandexMapHref = "https://yandex.ru/maps/-/CPtvrE8f";
-const address = "г. Мыски, ул. Кутузова, 15";
 
 const hoverMotionClass =
   "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(24,64,102,0.16)]";
@@ -128,14 +129,44 @@ const faqSchema = {
   })),
 };
 
+const localBusinessSchema = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "РеалТермо",
+  legalName: companyName,
+  image: "/Hero.jpg",
+  telephone: phone,
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "RU",
+    addressLocality: "Мыски",
+    streetAddress: "ул. Кутузова, 15",
+  },
+  areaServed: "Мыски",
+  url: "https://реалтермо.рф",
+  sameAs: [telegramHref, maxHref],
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      opens: "09:00",
+      closes: "18:00",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Saturday",
+      opens: "09:00",
+      closes: "17:00",
+    },
+  ],
+};
+
 export default function Home() {
   return (
-    <main className="relative overflow-hidden">
+    <main className="relative overflow-hidden pb-28 sm:pb-0">
       <ParallaxBackground />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }} />
 
       <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
         <a className="flex items-center gap-3 rounded-full bg-white/72 px-4 py-2 shadow-sm backdrop-blur-xl" href="#">
@@ -150,23 +181,24 @@ export default function Home() {
         </a>
       </header>
 
-      <section className="relative isolate mx-auto grid max-w-7xl gap-8 px-4 pb-14 pt-5 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:pb-20 lg:pt-10">
-        <div className="flex flex-col justify-center gap-7">
-          <div className="flex flex-wrap gap-3">
-            <Badge variant="secondary">Магазин сантехники</Badge>
-            <Badge variant="outline">
-              <MapPin data-icon="inline-start" />
-              {address}
-            </Badge>
-          </div>
-          <div className="rounded-[2.5rem] border border-white/70 bg-white/82 p-6 shadow-soft backdrop-blur-xl sm:p-8 lg:p-10">
+      <section className="relative isolate mx-auto grid max-w-7xl gap-8 px-4 pb-14 pt-5 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:grid-rows-[auto_1fr] lg:px-8 lg:pb-20 lg:pt-10">
+        <div className="flex flex-wrap gap-3 lg:col-start-1 lg:row-start-1">
+          <Badge variant="secondary">Магазин сантехники</Badge>
+          <Badge variant="outline">
+            <MapPin data-icon="inline-start" />
+            {address}
+          </Badge>
+        </div>
+        <div className="rounded-[2.5rem] border border-white/70 bg-white/82 p-6 shadow-soft backdrop-blur-xl sm:p-8 lg:col-start-1 lg:row-start-2 lg:h-full lg:p-10">
             <h1 className="max-w-3xl bg-gradient-to-br from-slate-950 via-sky-950 to-primary bg-clip-text text-4xl font-semibold tracking-[-0.04em] text-transparent sm:text-5xl lg:text-6xl">
               Магазин сантехники «РеалТермо»
             </h1>
             <p className="mt-5 max-w-2xl rounded-[1.6rem] bg-gradient-to-r from-sky-50/96 to-white/78 p-4 text-lg font-medium leading-8 text-slate-800 shadow-sm ring-1 ring-sky-100/80 sm:text-xl">
-              Всё для водоснабжения, отопления, канализации и ванной комнаты. Большой выбор товаров
-              в наличии и под заказ.
+              Всё для водоснабжения, отопления, канализации и ванной комнаты. Большой выбор товаров в наличии и под заказ.
             </p>
+            <div className="mt-4 inline-flex rounded-full bg-sky-50/88 px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-sky-100/80">
+              Пн-Пт: 9:00-18:00, Сб: 9:00-17:00, Вс: выходной
+            </div>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button asChild size="lg" className={callButtonClass}>
                 <a href={phoneHref}>
@@ -194,10 +226,9 @@ export default function Home() {
               </Button>
             </div>
           </div>
-        </div>
 
-        <Card className="overflow-hidden p-3">
-          <div className="relative min-h-[360px] overflow-hidden rounded-[1.6rem] sm:min-h-[500px]">
+        <Card className="overflow-hidden p-3 lg:col-start-2 lg:row-start-2 lg:h-full">
+          <div className="relative min-h-[360px] overflow-hidden rounded-[1.6rem] sm:min-h-[500px] lg:h-full lg:min-h-0">
             <Image
               src="/Hero.jpg"
               alt="Фасад магазина сантехники РеалТермо в Мысках"
@@ -309,13 +340,14 @@ export default function Home() {
         <Card className="overflow-hidden">
           <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
             <CardHeader className="justify-center p-6 sm:p-8 lg:p-10">
-              <Badge className="w-fit" variant="secondary">Консультация</Badge>
+              <Badge className="w-fit" variant="secondary">
+                Консультация
+              </Badge>
               <CardTitle className="text-3xl tracking-[-0.03em] sm:text-4xl">
                 Уточните наличие, подбор или доставку
               </CardTitle>
               <CardDescription className="text-base leading-7">
-                Можно позвонить или написать в Telegram или Max: подскажем по наличию, поможем подобрать
-                подходящий товар или аналог, сориентируем по срокам и стоимости доставки.
+                Можно позвонить или написать в Telegram или Max: подскажем по наличию, поможем подобрать подходящий товар или аналог, сориентируем по срокам и стоимости доставки.
               </CardDescription>
               <div className="flex flex-col gap-3 pt-4 sm:flex-row">
                 <Button asChild className={callButtonClass}>
@@ -333,13 +365,11 @@ export default function Home() {
                 <Button asChild variant="outline" className={outlineButtonClass}>
                   <a href={maxHref} rel="noreferrer" target="_blank">
                     <MessageSquareMore data-icon="inline-start" />
-                    {max}
+                    Max
                   </a>
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground">
-                При необходимости дадим контакты проверенных специалистов.
-              </p>
+              <p className="text-sm text-muted-foreground">При необходимости дадим контакты проверенных специалистов.</p>
             </CardHeader>
             <div id="lead" className="bg-white/62 p-6 sm:p-8 lg:p-10">
               <h2 className="text-2xl font-semibold tracking-[-0.02em]">Заявка на обратный звонок</h2>
@@ -358,7 +388,9 @@ export default function Home() {
         <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
           <Card>
             <CardHeader>
-              <Badge className="w-fit" variant="secondary">Контакты</Badge>
+              <Badge className="w-fit" variant="secondary">
+                Контакты
+              </Badge>
               <CardTitle className="text-3xl tracking-[-0.03em]">Как найти «РеалТермо»</CardTitle>
               <CardDescription>Адрес, режим работы и быстрые способы связи.</CardDescription>
             </CardHeader>
@@ -370,8 +402,8 @@ export default function Home() {
                 title="Режим работы"
                 text={
                   <div className="flex flex-col gap-1">
-                    <span>Понедельник–пятница: 9:00–18:00</span>
-                    <span>Суббота: 9:00–17:00</span>
+                    <span>Понедельник-Пятница: 9:00-18:00</span>
+                    <span>Суббота: 9:00-17:00</span>
                     <span>Воскресенье: выходной</span>
                   </div>
                 }
@@ -427,6 +459,32 @@ export default function Home() {
           </CardContent>
         </Card>
       </section>
+
+      <footer className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
+        <div className="rounded-[1.6rem] bg-white/72 px-5 py-4 text-sm text-muted-foreground shadow-soft backdrop-blur-xl sm:flex sm:items-center sm:justify-between">
+          <p>Оператор персональных данных: {companyName}</p>
+          <Link className="mt-2 inline-flex font-medium text-sky-900 hover:text-sky-950 sm:mt-0" href="/privacy-policy">
+            Политика конфиденциальности
+          </Link>
+        </div>
+      </footer>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-sky-100 bg-white/96 p-3 shadow-[0_-12px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:hidden">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3">
+          <Button asChild className={callButtonClass}>
+            <a href={phoneHref}>
+              <Phone data-icon="inline-start" />
+              Позвонить
+            </a>
+          </Button>
+          <Button asChild variant="secondary">
+            <a href={telegramHref} rel="noreferrer" target="_blank">
+              <Send data-icon="inline-start" />
+              Написать
+            </a>
+          </Button>
+        </div>
+      </div>
     </main>
   );
 }
