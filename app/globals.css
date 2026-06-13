@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 204 60% 98%;
+  --foreground: 215 35% 16%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 35% 16%;
+  --primary: 204 96% 43%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 201 92% 90%;
+  --secondary-foreground: 205 92% 24%;
+  --muted: 206 38% 93%;
+  --muted-foreground: 215 18% 42%;
+  --accent: 31 82% 91%;
+  --accent-foreground: 24 62% 24%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 205 32% 86%;
+  --input: 205 32% 86%;
+  --ring: 200 92% 42%;
+  --radius: 1.4rem;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(0, 153, 255, 0.24), transparent 34rem),
+    radial-gradient(circle at 78% 12%, rgba(31, 116, 255, 0.16), transparent 28rem),
+    radial-gradient(circle at 80% 20%, rgba(252, 199, 145, 0.1), transparent 30rem),
+    hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+.parallax-stage {
+  position: fixed;
+  inset: -12vh -7vw;
+  z-index: -3;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.parallax-frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  min-height: 100%;
+  min-width: 100%;
+  width: auto;
+  height: auto;
+  opacity: 0.42;
+  object-fit: cover;
+  object-position: center;
+  filter: blur(0.15px) saturate(1.14) contrast(1.08);
+  user-select: none;
+  will-change: transform;
+}
+
+.parallax-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(241, 248, 252, 0.58), rgba(241, 248, 252, 0.22) 34%, rgba(241, 248, 252, 0.28) 70%, rgba(241, 248, 252, 0.66)),
+    radial-gradient(circle at 50% 20%, rgba(241, 248, 252, 0.16), rgba(241, 248, 252, 0.46) 76%);
+  pointer-events: none;
+}
+
+::selection {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
