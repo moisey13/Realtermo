@@ -17,7 +17,7 @@ export function ParallaxBackground() {
         sizes="100vw"
         src={frame1}
         style={{
-          transform: "translate3d(-50%, -50%, 0) scale(1.08)",
+          transform: "scale(1.08)",
         }}
       />
       <Image
@@ -29,7 +29,7 @@ export function ParallaxBackground() {
         sizes="100vw"
         src={frame2}
         style={{
-          transform: "translate3d(-50%, -50%, 0) scale(1.04)",
+          transform: "scale(1.04)",
         }}
       />
       <div className="parallax-veil" />

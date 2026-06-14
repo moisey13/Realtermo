@@ -1,9 +1,13 @@
 export const siteName = "РеалТермо";
-export const companyName = 'ООО "Мебельтрейд"';
+export const companyName = 'ООО "МебельТрейд"';
 export const siteUrl = "https://реалтермо.рф";
 
-export const phone = "+7 (905) 067-0444";
-export const phoneHref = "tel:+79050670444";
+export const phoneDisplayParts = ["+7", "(905)", "067-04-44"] as const;
+export const phoneLinkParts = ["+7", "905", "067", "0444"] as const;
+export const phone = phoneDisplayParts.join(" ");
+export const phoneHref = `tel:${phoneLinkParts.join("")}`;
+export const phoneE164 = phoneHref.replace("tel:", "");
+export const logoPath = "/realtermo-logo-header.png";
 export const telegram = "@Realtermo";
 export const telegramHref = "https://t.me/Realtermo";
 export const maxHref =

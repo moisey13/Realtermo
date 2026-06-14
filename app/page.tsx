@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
@@ -20,21 +20,23 @@ import {
 
 import { LeadForm } from "@/components/lead-form";
 import { ParallaxBackground } from "@/components/parallax-background";
-import {
-  address,
-  companyName,
-  maxHref,
-  phone,
-  phoneHref,
-  telegram,
-  telegramHref,
-  yandexMapHref,
-} from "@/lib/site";
+import { ProtectedPhoneLink } from "@/components/protected-phone-link";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  address,
+  companyName,
+  logoPath,
+  maxHref,
+  phoneE164,
+  siteUrl,
+  telegram,
+  telegramHref,
+  yandexMapHref,
+} from "@/lib/site";
 
 const hoverMotionClass =
   "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(24,64,102,0.16)]";
@@ -92,7 +94,7 @@ const faqItems = [
   {
     question: "Можно ли заказать сантехнику, если нужного товара нет в наличии?",
     answer:
-      "Да. Если необходимой позиции нет в магазине, мы можем заказать её у поставщиков. Срок поставки зависит от конкретного товара и уточняется при обращении.",
+      "Да. Если нужной позиции нет в магазине, мы можем заказать её у поставщиков. Срок поставки зависит от конкретного товара и уточняется при обращении.",
   },
   {
     question: "Помогаете ли вы подобрать оборудование для отопления и водоснабжения?",
@@ -112,7 +114,7 @@ const faqItems = [
   {
     question: "Можно ли получить консультацию перед покупкой?",
     answer:
-      "Конечно. Вы можете обратиться к нам по телефону, через мессенджер или лично в магазине. Мы поможем подобрать подходящие товары и ответим на возникающие вопросы.",
+      "Конечно. Вы можете обратиться к нам через мессенджер, оставить заявку на обратный звонок или прийти лично в магазин. Мы поможем подобрать подходящие товары и ответим на вопросы.",
   },
 ];
 
@@ -132,10 +134,13 @@ const faqSchema = {
 const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
+  "@id": `${siteUrl}/#organization`,
   name: "РеалТермо",
   legalName: companyName,
-  image: "/Hero.jpg",
-  telephone: phone,
+  url: siteUrl,
+  image: `${siteUrl}/Hero.jpg`,
+  logo: `${siteUrl}${logoPath}`,
+  telephone: phoneE164,
   address: {
     "@type": "PostalAddress",
     addressCountry: "RU",
@@ -143,8 +148,16 @@ const localBusinessSchema = {
     streetAddress: "ул. Кутузова, 15",
   },
   areaServed: "Мыски",
-  url: "https://реалтермо.рф",
   sameAs: [telegramHref, maxHref],
+  contactPoint: [
+    {
+      "@type": "ContactPoint",
+      telephone: phoneE164,
+      contactType: "customer service",
+      areaServed: "RU",
+      availableLanguage: ["ru"],
+    },
+  ],
   openingHoursSpecification: [
     {
       "@type": "OpeningHoursSpecification",
@@ -169,16 +182,24 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }} />
 
       <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
-        <a className="flex items-center gap-3 rounded-full bg-white/72 px-4 py-2 shadow-sm backdrop-blur-xl" href="#">
-          <span className="flex size-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-            РТ
+        <a
+          className="group flex items-center rounded-[2rem] bg-white/74 px-4 py-3 shadow-sm backdrop-blur-xl transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(24,64,102,0.12)]"
+          href="#"
+        >
+          <span className="relative block w-[176px] animate-logo-float sm:w-[196px]">
+            <Image
+              src="/logo-realtermo.png"
+              alt="Логотип РеалТермо"
+              width={1074}
+              height={253}
+              priority
+              className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.02]"
+            />
           </span>
-          <span className="font-semibold tracking-tight">РеалТермо</span>
         </a>
-        <a className="hidden items-center gap-2 text-sm font-medium text-muted-foreground sm:flex" href={phoneHref}>
-          <Phone data-icon="inline-start" />
-          {phone}
-        </a>
+        <div className="hidden sm:flex">
+          <ProtectedPhoneLink className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground" />
+        </div>
       </header>
 
       <section className="relative isolate mx-auto grid max-w-7xl gap-8 px-4 pb-14 pt-5 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:grid-rows-[auto_1fr] lg:px-8 lg:pb-20 lg:pt-10">
@@ -189,43 +210,42 @@ export default function Home() {
             {address}
           </Badge>
         </div>
+
         <div className="rounded-[2.5rem] border border-white/70 bg-white/82 p-6 shadow-soft backdrop-blur-xl sm:p-8 lg:col-start-1 lg:row-start-2 lg:h-full lg:p-10">
-            <h1 className="max-w-3xl bg-gradient-to-br from-slate-950 via-sky-950 to-primary bg-clip-text text-4xl font-semibold tracking-[-0.04em] text-transparent sm:text-5xl lg:text-6xl">
-              Магазин сантехники «РеалТермо»
-            </h1>
-            <p className="mt-5 max-w-2xl rounded-[1.6rem] bg-gradient-to-r from-sky-50/96 to-white/78 p-4 text-lg font-medium leading-8 text-slate-800 shadow-sm ring-1 ring-sky-100/80 sm:text-xl">
-              Всё для водоснабжения, отопления, канализации и ванной комнаты. Большой выбор товаров в наличии и под заказ.
-            </p>
-            <div className="mt-4 inline-flex rounded-full bg-sky-50/88 px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-sky-100/80">
-              Пн-Пт: 9:00-18:00, Сб: 9:00-17:00, Вс: выходной
-            </div>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button asChild size="lg" className={callButtonClass}>
-                <a href={phoneHref}>
-                  <Phone data-icon="inline-start" />
-                  Позвонить
-                </a>
-              </Button>
-              <Button asChild size="lg" variant="secondary" className={secondaryButtonClass}>
-                <a href={telegramHref} rel="noreferrer" target="_blank">
-                  <Send data-icon="inline-start" />
-                  Написать в Telegram
-                </a>
-              </Button>
-              <Button asChild size="lg" variant="outline" className={outlineButtonClass}>
-                <a href={maxHref} rel="noreferrer" target="_blank">
-                  <MessageSquareMore data-icon="inline-start" />
-                  Написать в Max
-                </a>
-              </Button>
-              <Button asChild size="lg" variant="outline" className={outlineButtonClass}>
-                <a href="#lead">
-                  Оставить заявку
-                  <ArrowRight data-icon="inline-end" />
-                </a>
-              </Button>
-            </div>
+          <h1 className="max-w-3xl bg-gradient-to-br from-slate-950 via-sky-950 to-primary bg-clip-text text-4xl font-semibold tracking-[-0.04em] text-transparent sm:text-5xl lg:text-6xl">
+            Магазин сантехники «РеалТермо»
+          </h1>
+          <p className="mt-5 max-w-2xl rounded-[1.6rem] bg-gradient-to-r from-sky-50/96 to-white/78 p-4 text-lg font-medium leading-8 text-slate-800 shadow-sm ring-1 ring-sky-100/80 sm:text-xl">
+            Всё для водоснабжения, отопления, канализации и ванной комнаты. Большой выбор товаров в наличии и под заказ.
+          </p>
+          <div className="mt-4 inline-flex rounded-full bg-sky-50/88 px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-sky-100/80">
+            Пн-Пт: 9:00-18:00, Сб: 9:00-17:00, Вс: выходной
           </div>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <ProtectedPhoneLink
+              className={`inline-flex h-12 items-center justify-center gap-2 rounded-full px-8 text-base font-medium ${callButtonClass}`}
+              compact
+            />
+            <Button asChild size="lg" variant="secondary" className={secondaryButtonClass}>
+              <a href={telegramHref} rel="noopener noreferrer" target="_blank">
+                <Send data-icon="inline-start" />
+                Написать в Telegram
+              </a>
+            </Button>
+            <Button asChild size="lg" variant="outline" className={outlineButtonClass}>
+              <a href={maxHref} rel="noopener noreferrer" target="_blank">
+                <MessageSquareMore data-icon="inline-start" />
+                Написать в Max
+              </a>
+            </Button>
+            <Button asChild size="lg" variant="outline" className={outlineButtonClass}>
+              <a href="#lead">
+                Оставить заявку
+                <ArrowRight data-icon="inline-end" />
+              </a>
+            </Button>
+          </div>
+        </div>
 
         <Card className="overflow-hidden p-3 lg:col-start-2 lg:row-start-2 lg:h-full">
           <div className="relative min-h-[360px] overflow-hidden rounded-[1.6rem] sm:min-h-[500px] lg:h-full lg:min-h-0">
@@ -242,7 +262,7 @@ export default function Home() {
               <a
                 className="mt-1 block text-lg font-semibold tracking-[-0.01em] text-white transition-colors hover:text-sky-100"
                 href={yandexMapHref}
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 target="_blank"
               >
                 {address}
@@ -347,23 +367,22 @@ export default function Home() {
                 Уточните наличие, подбор или доставку
               </CardTitle>
               <CardDescription className="text-base leading-7">
-                Можно позвонить или написать в Telegram или Max: подскажем по наличию, поможем подобрать подходящий товар или аналог, сориентируем по срокам и стоимости доставки.
+                Можно написать в Telegram или Max: подскажем по наличию, поможем подобрать товар или аналог,
+                сориентируем по срокам и стоимости доставки.
               </CardDescription>
               <div className="flex flex-col gap-3 pt-4 sm:flex-row">
-                <Button asChild className={callButtonClass}>
-                  <a href={phoneHref}>
-                    <Phone data-icon="inline-start" />
-                    {phone}
-                  </a>
-                </Button>
+                <ProtectedPhoneLink
+                  className={`inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-sm font-medium ${callButtonClass}`}
+                  compact
+                />
                 <Button asChild variant="outline" className={outlineButtonClass}>
-                  <a href={telegramHref} rel="noreferrer" target="_blank">
+                  <a href={telegramHref} rel="noopener noreferrer" target="_blank">
                     <MessageCircle data-icon="inline-start" />
                     {telegram}
                   </a>
                 </Button>
                 <Button asChild variant="outline" className={outlineButtonClass}>
-                  <a href={maxHref} rel="noreferrer" target="_blank">
+                  <a href={maxHref} rel="noopener noreferrer" target="_blank">
                     <MessageSquareMore data-icon="inline-start" />
                     Max
                   </a>
@@ -374,7 +393,7 @@ export default function Home() {
             <div id="lead" className="bg-white/62 p-6 sm:p-8 lg:p-10">
               <h2 className="text-2xl font-semibold tracking-[-0.02em]">Заявка на обратный звонок</h2>
               <p className="mt-2 text-muted-foreground">
-                Оставьте контакты и коротко опишите задачу — поможем подобрать нужный товар и проконсультируем.
+                Оставьте контакты и коротко опишите задачу. Мы поможем подобрать нужный товар и проконсультируем.
               </p>
               <div className="mt-6">
                 <LeadForm />
@@ -409,7 +428,11 @@ export default function Home() {
                 }
               />
               <Separator />
-              <ContactRow icon={Phone} title="Телефон" text={phone} href={phoneHref} />
+              <ContactRow
+                icon={Phone}
+                title="Телефон"
+                text={<ProtectedPhoneLink className="inline-flex items-center gap-2 text-left" showIcon={false} />}
+              />
               <Separator />
               <ContactRow icon={MessageCircle} title="Telegram" text={telegram} href={telegramHref} />
               <Separator />
@@ -419,7 +442,7 @@ export default function Home() {
           <Card className="min-h-[360px] overflow-hidden">
             <div className="flex h-full min-h-[360px] items-center justify-center bg-gradient-to-br from-secondary/80 via-white/72 to-accent/60 p-8 text-center">
               <Button asChild size="lg" variant="outline" className={mapButtonClass}>
-                <a href={yandexMapHref} rel="noreferrer" target="_blank">
+                <a href={yandexMapHref} rel="noopener noreferrer" target="_blank">
                   Открыть адрес в Яндекс Картах
                 </a>
               </Button>
@@ -471,14 +494,12 @@ export default function Home() {
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-sky-100 bg-white/96 p-3 shadow-[0_-12px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3">
-          <Button asChild className={callButtonClass}>
-            <a href={phoneHref}>
-              <Phone data-icon="inline-start" />
-              Позвонить
-            </a>
-          </Button>
+          <ProtectedPhoneLink
+            className={`inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-sm font-medium ${callButtonClass}`}
+            compact
+          />
           <Button asChild variant="secondary">
-            <a href={telegramHref} rel="noreferrer" target="_blank">
+            <a href={telegramHref} rel="noopener noreferrer" target="_blank">
               <Send data-icon="inline-start" />
               Написать
             </a>
@@ -519,7 +540,7 @@ function ContactRow({
   return (
     <a
       href={href}
-      rel={href.startsWith("http") ? "noreferrer" : undefined}
+      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
       target={href.startsWith("http") ? "_blank" : undefined}
       className={`-mx-3 block rounded-[1.3rem] px-3 py-2 ${hoverMotionClass}`}
     >

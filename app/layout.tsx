@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
 
-import { seoDescription, seoTitle, siteName, siteUrl } from "@/lib/site";
+import { logoPath, seoDescription, seoTitle, siteName, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: seoTitle,
   description: seoDescription,
+  keywords: ["сантехника Мыски", "отопление Мыски", "водоснабжение Мыски", "магазин сантехники РеалТермо"],
   applicationName: siteName,
   alternates: {
     canonical: "/",
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
     siteName,
     images: [
       {
-        url: "/Hero.jpg",
+        url: logoPath,
         width: 1200,
         height: 630,
         alt: "Магазин РеалТермо в Мысках",
@@ -43,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: seoTitle,
     description: seoDescription,
-    images: ["/Hero.jpg"],
+    images: [logoPath],
   },
   robots: {
     index: true,

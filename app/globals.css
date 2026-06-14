@@ -43,6 +43,20 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
+@keyframes logo-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -3px, 0);
+  }
+}
+
+.animate-logo-float {
+  animation: logo-float 5.5s ease-in-out infinite;
+}
+
 .parallax-stage {
   position: fixed;
   inset: 0;

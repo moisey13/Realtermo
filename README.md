@@ -69,7 +69,8 @@ npx shadcn@latest add button card input textarea label badge separator
 - 8 фото галереи: замените файлы в `public` или обновите массив `gallery` в `app/page.tsx`.
 - Parallax background: архив `ezgif-split.zip` распакован в `public/parallax`; сейчас используются `public/parallax/frame_00_delay-0.083s.png` и `public/parallax/frame_48_delay-0.083s.png`. Заменить можно в `app/globals.css` в `.parallax-shell::before` и `.parallax-shell::after`.
 - Telegram Bot Token: `TELEGRAM_BOT_TOKEN` в `.env.local`.
-- Telegram Chat ID: `TELEGRAM_CHAT_ID` в `.env.local`.
+- Telegram Chat ID: `TELEGRAM_CHAT_ID` в `.env.local`, если хотите жёстко закрепить чат.
+- Если `TELEGRAM_CHAT_ID` не указан, достаточно один раз написать боту в нужный личный чат или группу, и сайт начнёт отправлять заявки туда автоматически.
 - Google Forms endpoint: `GOOGLE_FORMS_ENDPOINT` в `.env.local`.
 - Google Forms поля: `GOOGLE_FORMS_NAME_FIELD`, `GOOGLE_FORMS_PHONE_FIELD`, `GOOGLE_FORMS_MESSAGE_FIELD` в `.env.local`.
 - Карта: замените placeholder в секции контактов на iframe карты в `app/page.tsx`.
@@ -79,7 +80,8 @@ npx shadcn@latest add button card input textarea label badge separator
 ## Чеклист перед деплоем
 
 - Проверить телефон `+7 (905) 067-0444` и Telegram `@Realtermo`.
-- Подключить реальные переменные Telegram и Google Forms.
+- Подключить реальный `TELEGRAM_BOT_TOKEN`.
+- Если нужен фиксированный чат, указать `TELEGRAM_CHAT_ID`. Если нет, написать боту из нужного чата перед проверкой формы.
 - Заменить placeholder карты на iframe.
 - Проверить, что фото фасада и 8 фото галереи актуальны.
 - Открыть сайт на телефоне и проверить CTA, форму, галерею, адрес и режим работы.

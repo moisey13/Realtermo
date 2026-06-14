@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { address, companyName, phone, siteName, siteUrl, telegramHref } from "@/lib/site";
+import { ProtectedPhoneLink } from "@/components/protected-phone-link";
+import { address, companyName, siteName, siteUrl, telegramHref } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: `Политика конфиденциальности | ${siteName}`,
@@ -54,8 +55,8 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl font-semibold text-slate-950">5. Хранение и передача</h2>
             <p className="mt-2">
-              Данные хранятся только в объеме, необходимом для обработки обращения. Для доставки заявок могут
-              использоваться технические сервисы обмена сообщениями и формы приема обращений. Данные не используются
+              Данные хранятся только в объёме, необходимом для обработки обращения. Для доставки заявок могут
+              использоваться технические сервисы обмена сообщениями и формы приёма обращений. Данные не используются
               для публичного распространения и не продаются третьим лицам.
             </p>
           </section>
@@ -74,14 +75,12 @@ export default function PrivacyPolicyPage() {
             <p>Адрес магазина: {address}.</p>
             <p>
               Телефон для обращений:{" "}
-              <a className="text-sky-900 underline-offset-4 hover:underline" href="tel:+79050670444">
-                {phone}
-              </a>
+              <ProtectedPhoneLink className="inline-flex text-sky-900 underline-offset-4 hover:underline" showIcon={false} />
               .
             </p>
             <p>
               Дополнительный канал связи:{" "}
-              <a className="text-sky-900 underline-offset-4 hover:underline" href={telegramHref} rel="noreferrer" target="_blank">
+              <a className="text-sky-900 underline-offset-4 hover:underline" href={telegramHref} rel="noopener noreferrer" target="_blank">
                 Telegram
               </a>
               .
