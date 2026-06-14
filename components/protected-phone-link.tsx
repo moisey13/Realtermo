@@ -1,53 +1,57 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Phone } from "lucide-react";
-
-import { phoneDisplayParts, phoneLinkParts } from "@/lib/site";
 
 type ProtectedPhoneLinkProps = {
   className?: string;
-  compact?: boolean;
+  label?: string;
   showIcon?: boolean;
 };
 
-function isMobileDevice() {
-  if (typeof navigator === "undefined") {
-    return false;
-  }
-
-  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-}
-
 export function ProtectedPhoneLink({
   className,
-  compact = false,
+  label = "Позвонить",
   showIcon = true,
 }: ProtectedPhoneLinkProps) {
-  const [isRevealed, setIsRevealed] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [notice, setNotice] = useState("");
 
-  const phoneLabel = useMemo(() => phoneDisplayParts.join(" "), []);
-  const telHref = useMemo(() => `tel:${phoneLinkParts.join("")}`, []);
-  const defaultLabel = compact ? "Позвонить" : "Телефон";
-
   async function handleClick() {
-    if (!isRevealed) {
-      setIsRevealed(true);
-      setNotice(isMobileDevice() ? "Нажмите ещё раз, чтобы позвонить." : "Номер показан только после клика.");
+    if (isPending) {
       return;
     }
 
-    if (isMobileDevice()) {
-      window.location.href = telHref;
-      return;
-    }
+    setIsPending(true);
+    setNotice("");
 
     try {
-      await navigator.clipboard.writeText(phoneLabel);
-      setNotice("Номер скопирован в буфер обмена.");
+      const response = await fetch("/api/call", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      });
+
+      const result = (await response.json().catch(() => null)) as
+        | {
+            ok?: boolean;
+            message?: string;
+            redirectUrl?: string;
+          }
+        | null;
+
+      if (!response.ok || !result?.ok || !result.redirectUrl) {
+        setNotice(result?.message ?? "Не удалось начать звонок. Попробуйте ещё раз.");
+        return;
+      }
+
+      window.location.href = result.redirectUrl;
     } catch {
-      setNotice("Скопируйте номер вручную.");
+      setNotice("Не удалось начать звонок. Попробуйте ещё раз или напишите в Telegram.");
+    } finally {
+      setIsPending(false);
     }
   }
 
@@ -57,10 +61,12 @@ export function ProtectedPhoneLink({
         type="button"
         className={className}
         onClick={handleClick}
-        aria-label={isRevealed ? `Телефон ${phoneLabel}` : defaultLabel}
+        aria-label={label}
+        aria-busy={isPending}
+        disabled={isPending}
       >
         {showIcon ? <Phone data-icon="inline-start" /> : null}
-        {isRevealed ? phoneLabel : defaultLabel}
+        {isPending ? "Соединяем..." : label}
       </button>
       {notice ? <span className="text-xs text-muted-foreground">{notice}</span> : null}
     </div>

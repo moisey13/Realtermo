@@ -224,7 +224,6 @@ export default function Home() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <ProtectedPhoneLink
               className={`inline-flex h-12 items-center justify-center gap-2 rounded-full px-8 text-base font-medium ${callButtonClass}`}
-              compact
             />
             <Button asChild size="lg" variant="secondary" className={secondaryButtonClass}>
               <a href={telegramHref} rel="noopener noreferrer" target="_blank">
@@ -373,7 +372,6 @@ export default function Home() {
               <div className="flex flex-col gap-3 pt-4 sm:flex-row">
                 <ProtectedPhoneLink
                   className={`inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-sm font-medium ${callButtonClass}`}
-                  compact
                 />
                 <Button asChild variant="outline" className={outlineButtonClass}>
                   <a href={telegramHref} rel="noopener noreferrer" target="_blank">
@@ -496,7 +494,6 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3">
           <ProtectedPhoneLink
             className={`inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-sm font-medium ${callButtonClass}`}
-            compact
           />
           <Button asChild variant="secondary">
             <a href={telegramHref} rel="noopener noreferrer" target="_blank">
