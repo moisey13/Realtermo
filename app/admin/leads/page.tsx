@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 
+import { AdminLoginForm } from "@/components/admin-login-form";
 import { getAdminUsername, isAdminAuthConfigured, isAdminAuthenticated } from "@/lib/admin-auth";
 import { createAdminAuditLog, getAllLeads, getLeadsDatabasePath, getRecentAdminAuditLogs } from "@/lib/leads-db";
 
@@ -40,7 +41,7 @@ function getErrorMessage(errorCode?: string) {
     case "auth":
       return "Неверный логин или пароль.";
     case "config":
-      return "Не настроен доступ в админку. Заполните ADMIN_PASSWORD_HASH и ADMIN_SESSION_SECRET.";
+      return "Админка не настроена. Локально заполните .env.local и перезапустите сервер. На Vercel задайте ADMIN_PASSWORD_HASH и ADMIN_SESSION_SECRET в настройках проекта и сделайте redeploy.";
     case "update":
       return "Не удалось обновить статус заявки.";
     default:
@@ -89,40 +90,12 @@ export default async function AdminLeadsPage({
 
           {!isConfigured ? (
             <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
-              Сначала задайте переменные окружения <code>ADMIN_PASSWORD_HASH</code> и{" "}
-              <code>ADMIN_SESSION_SECRET</code>.
+              Сначала задайте <code>ADMIN_PASSWORD_HASH</code> и <code>ADMIN_SESSION_SECRET</code>.
+              На Vercel файл <code>.env.local</code> из репозитория не используется.
             </div>
           ) : null}
 
-          <form action="/admin/login" className="mt-6 space-y-4" method="post">
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-800">Логин</span>
-              <input
-                autoComplete="username"
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base text-slate-950 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
-                defaultValue={getAdminUsername()}
-                name="username"
-                type="text"
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-800">Пароль</span>
-              <input
-                autoComplete="current-password"
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base text-slate-950 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
-                name="password"
-                type="password"
-              />
-            </label>
-
-            <button
-              className="w-full rounded-2xl bg-slate-950 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-800"
-              type="submit"
-            >
-              Войти
-            </button>
-          </form>
+          <AdminLoginForm defaultUsername={getAdminUsername()} />
         </div>
       </main>
     );
