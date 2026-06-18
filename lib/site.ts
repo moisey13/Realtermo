@@ -1,6 +1,17 @@
 export const siteName = "РеалТермо";
 export const companyName = 'ООО "МебельТрейд"';
 export const siteUrl = "https://реалтермо.рф";
+export const companyInn = process.env.NEXT_PUBLIC_COMPANY_INN?.trim() || "[указать ИНН]";
+export const companyOgrn = process.env.NEXT_PUBLIC_COMPANY_OGRN?.trim() || "[указать ОГРН]";
+export const companyLegalAddress =
+  process.env.NEXT_PUBLIC_COMPANY_LEGAL_ADDRESS?.trim() || "[указать юридический адрес]";
+export const personalDataEmail = process.env.NEXT_PUBLIC_PD_EMAIL?.trim() || "[указать e-mail для обращений]";
+export const personalDataResponsibleName =
+  process.env.NEXT_PUBLIC_PD_RESPONSIBLE_NAME?.trim() || "[указать Ф.И.О. ответственного]";
+export const personalDataResponsibleRole =
+  process.env.NEXT_PUBLIC_PD_RESPONSIBLE_ROLE?.trim() || "[указать должность ответственного]";
+export const privacyEffectiveDate = process.env.NEXT_PUBLIC_PRIVACY_EFFECTIVE_DATE?.trim() || "18.06.2026";
+export const yandexMetrikaId = process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID?.trim() || "";
 
 export const phoneDisplayParts = ["+7", "(905)", "067-04-44"] as const;
 export const phoneLinkParts = ["+7", "905", "067", "0444"] as const;

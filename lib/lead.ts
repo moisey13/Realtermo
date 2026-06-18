@@ -25,6 +25,7 @@ export const leadSchema = z.object({
     .trim()
     .transform(normalizePhone)
     .refine((value) => /^7\d{10}$/.test(value), "Введите телефон в формате +7 (900) 123 45-67."),
+  email: z.string().trim().email("Введите корректный email.").optional().or(z.literal("")),
   message: z.string().trim().max(1000, "Сообщение должно быть короче 1000 символов.").optional(),
   consent: z.boolean().refine((value) => value === true, {
     message: "Нужно подтвердить согласие на обработку персональных данных.",

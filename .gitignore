@@ -24,3 +24,8 @@ Thumbs.db
 
 # Local archives and generated assets
 *.zip
+
+# Leads storage
+storage/*.sqlite
+storage/*.sqlite-shm
+storage/*.sqlite-wal

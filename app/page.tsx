@@ -484,9 +484,20 @@ export default function Home() {
       <footer className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <div className="rounded-[1.6rem] bg-white/72 px-5 py-4 text-sm text-muted-foreground shadow-soft backdrop-blur-xl sm:flex sm:items-center sm:justify-between">
           <p>Оператор персональных данных: {companyName}</p>
-          <Link className="mt-2 inline-flex font-medium text-sky-900 hover:text-sky-950 sm:mt-0" href="/privacy-policy">
-            Политика конфиденциальности
-          </Link>
+          <div className="mt-2 flex flex-wrap gap-4 sm:mt-0">
+            <Link className="inline-flex font-medium text-sky-900 hover:text-sky-950" href="/privacy">
+              Политика ПДн
+            </Link>
+            <Link className="inline-flex font-medium text-sky-900 hover:text-sky-950" href="/cookies">
+              Файлы данных
+            </Link>
+            <Link className="inline-flex font-medium text-sky-900 hover:text-sky-950" href="/consent">
+              Согласие
+            </Link>
+            <Link className="inline-flex font-medium text-sky-900 hover:text-sky-950" href="/privacy#user-agreement">
+              Соглашение
+            </Link>
+          </div>
         </div>
       </footer>
 

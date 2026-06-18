@@ -8,14 +8,7 @@ import { useForm } from "react-hook-form";
 
 import { leadSchema, type LeadFormValues } from "@/lib/lead";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -71,10 +64,11 @@ export function LeadForm() {
   const form = useForm<LeadFormValues>({
     resolver: zodResolver(leadSchema),
     defaultValues: {
+      consent: false,
+      email: "",
+      message: "",
       name: "",
       phone: "",
-      message: "",
-      consent: false,
       website: "",
     },
   });
@@ -141,13 +135,27 @@ export function LeadForm() {
               <FormLabel>Телефон</FormLabel>
               <FormControl>
                 <Input
-                  type="tel"
                   autoComplete="tel"
                   inputMode="tel"
                   placeholder="+7 (900) 123 45-67"
+                  type="tel"
                   {...field}
                   onChange={(event) => field.onChange(formatPhone(event.target.value))}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input autoComplete="email" placeholder="name@example.com" type="email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -161,10 +169,7 @@ export function LeadForm() {
             <FormItem>
               <FormLabel>Что нужно подобрать или уточнить</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Например: нужен смеситель, радиатор, трубы, доставка или уточнение по наличию"
-                  {...field}
-                />
+                <Textarea placeholder="Например: нужен смеситель, радиатор, трубы или доставка" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -184,9 +189,9 @@ export function LeadForm() {
                   type="checkbox"
                 />
                 <span>
-                  Я соглашаюсь на обработку персональных данных для обратной связи. Подробнее в{" "}
-                  <Link className="font-medium text-sky-900 underline-offset-4 hover:underline" href="/privacy-policy">
-                    политике конфиденциальности
+                  Я согласен на обработку персональных данных. Подробнее в{" "}
+                  <Link className="font-medium text-sky-900 underline-offset-4 hover:underline" href="/privacy">
+                    политике обработки персональных данных
                   </Link>
                   .
                 </span>

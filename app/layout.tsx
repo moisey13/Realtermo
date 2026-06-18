@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Manrope } from "next/font/google";
 
-import { logoPath, seoDescription, seoTitle, siteName, siteUrl } from "@/lib/site";
+import { CookieBanner } from "@/components/cookie-banner";
+import { YandexMetrikaHit } from "@/components/yandex-metrika-hit";
+import { logoPath, seoDescription, seoTitle, siteName, siteUrl, yandexMetrikaId } from "@/lib/site";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -59,7 +62,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
-      <body className={manrope.className}>{children}</body>
+      <body className={manrope.className}>
+        {children}
+        <CookieBanner yandexMetrikaId={yandexMetrikaId} />
+        <Suspense fallback={null}>
+          <YandexMetrikaHit yandexMetrikaId={yandexMetrikaId} />
+        </Suspense>
+      </body>
     </html>
   );
 }

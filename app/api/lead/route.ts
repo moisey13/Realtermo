@@ -1,21 +1,16 @@
 import { NextResponse } from "next/server";
 
-import { leadSchema, type LeadPayload } from "@/lib/lead";
+import { leadSchema } from "@/lib/lead";
+import { createAdminAuditLog, createLead } from "@/lib/leads-db";
 import { getRateLimitKey, isRateLimited } from "@/lib/rate-limit";
-
-const googleFormsEndpoint = process.env.GOOGLE_FORMS_ENDPOINT;
-const googleNameField = process.env.GOOGLE_FORMS_NAME_FIELD;
-const googlePhoneField = process.env.GOOGLE_FORMS_PHONE_FIELD;
-const googleMessageField = process.env.GOOGLE_FORMS_MESSAGE_FIELD;
-const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
-const telegramChatIds = (process.env.TELEGRAM_CHAT_ID ?? "")
-  .split(",")
-  .map((value) => value.trim())
-  .filter(Boolean);
+import { getRequestIp } from "@/lib/request";
 
 const noStoreHeaders = {
   "Cache-Control": "no-store, max-age=0",
 };
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
@@ -26,7 +21,10 @@ export async function POST(request: Request) {
     const allowedOrigin = `${requestUrl.protocol}//${host}`;
 
     if (origin !== allowedOrigin) {
-      return NextResponse.json({ ok: false, message: "Недопустимый источник запроса." }, { status: 403, headers: noStoreHeaders });
+      return NextResponse.json(
+        { ok: false, message: "Недопустимый источник запроса." },
+        { status: 403, headers: noStoreHeaders },
+      );
     }
   }
 
@@ -34,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        message: "Слишком много заявок за короткое время. Попробуйте чуть позже или напишите в Telegram.",
+        message: "Слишком много заявок за короткое время. Попробуйте чуть позже.",
       },
       { status: 429, headers: noStoreHeaders },
     );
@@ -66,158 +64,63 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, message: "Заявка принята." }, { headers: noStoreHeaders });
   }
 
-  const configuredTargets = [
-    telegramBotToken ? "telegram" : null,
-    googleFormsEndpoint && googleNameField && googlePhoneField ? "googleForms" : null,
-  ].filter(Boolean);
+  try {
+    const knownFields = new Set(["name", "phone", "email", "message", "comment", "consent", "website"]);
+    const sourceUrl = request.headers.get("referer")?.slice(0, 500) || requestUrl.origin;
+    const extraFields =
+      rawPayload && typeof rawPayload === "object"
+        ? Object.fromEntries(
+            Object.entries(rawPayload as Record<string, unknown>).filter(([key]) => !knownFields.has(key)),
+          )
+        : {};
 
-  if (configuredTargets.length === 0) {
+    const result = createLead({
+      comment: payload.message?.trim() || null,
+      email: payload.email?.trim() || null,
+      extraFields,
+      name: payload.name,
+      pageUrl: sourceUrl,
+      phone: payload.phone,
+    });
+
+    createAdminAuditLog({
+      action: result.duplicate ? "lead.duplicate" : "lead.created",
+      actor: "site-form",
+      details: {
+        hasEmail: Boolean(payload.email?.trim()),
+        hasMessage: Boolean(payload.message?.trim()),
+        pageUrl: sourceUrl,
+      },
+      ip: getRequestIp(request),
+      target: String(result.id),
+    });
+
+    if (result.duplicate) {
+      return NextResponse.json(
+        {
+          ok: true,
+          message: "Такая заявка уже была недавно отправлена. Мы свяжемся с вами.",
+        },
+        { headers: noStoreHeaders },
+      );
+    }
+
+    return NextResponse.json(
+      {
+        ok: true,
+        message: "Заявка сохранена. Мы свяжемся с вами.",
+      },
+      { headers: noStoreHeaders },
+    );
+  } catch (error) {
+    console.error("[lead] Failed to save lead", error);
+
     return NextResponse.json(
       {
         ok: false,
-        message: "Форма временно недоступна. Позвоните нам или напишите в Telegram.",
+        message: "Не удалось сохранить заявку. Попробуйте еще раз или свяжитесь с магазином по телефону.",
       },
-      { status: 503, headers: noStoreHeaders },
+      { status: 500, headers: noStoreHeaders },
     );
-  }
-
-  const results = await Promise.allSettled([sendTelegram(payload), sendGoogleForms(payload)]);
-  const hasSuccess = results.some((result) => result.status === "fulfilled" && result.value === true);
-
-  if (!hasSuccess) {
-    return NextResponse.json(
-      { ok: false, message: "Заявка не доставлена. Позвоните нам или напишите в Telegram, чтобы мы точно получили сообщение." },
-      { status: 502, headers: noStoreHeaders },
-    );
-  }
-
-  return NextResponse.json({ ok: true, message: "Заявка доставлена. Мы свяжемся с вами." }, { headers: noStoreHeaders });
-}
-
-async function sendTelegram(payload: LeadPayload) {
-  if (!telegramBotToken) {
-    return false;
-  }
-
-  try {
-    const chatIds = await resolveTelegramChatIds();
-
-    if (chatIds.length === 0) {
-      return false;
-    }
-
-    const text = [
-      'Новая заявка с сайта "РеалТермо"',
-      `Имя: ${payload.name}`,
-      `Телефон: ${payload.phone}`,
-      payload.message ? `Что интересует: ${payload.message}` : null,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const results = await Promise.allSettled(
-      chatIds.map(async (chatId) => {
-        const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text,
-            disable_web_page_preview: true,
-          }),
-          signal: AbortSignal.timeout(10_000),
-        });
-
-        return response.ok;
-      }),
-    );
-
-    return results.some((result) => result.status === "fulfilled" && result.value === true);
-  } catch {
-    return false;
-  }
-}
-
-async function sendGoogleForms(payload: LeadPayload) {
-  if (!googleFormsEndpoint || !googleNameField || !googlePhoneField) {
-    return false;
-  }
-
-  try {
-    const formData = new URLSearchParams();
-    formData.append(googleNameField, payload.name);
-    formData.append(googlePhoneField, payload.phone);
-
-    if (googleMessageField) {
-      formData.append(googleMessageField, payload.message ?? "");
-    }
-
-    const response = await fetch(googleFormsEndpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: formData.toString(),
-      signal: AbortSignal.timeout(10_000),
-    });
-
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
-
-type TelegramUpdate = {
-  channel_post?: {
-    chat?: {
-      id?: number;
-      type?: string;
-    };
-  };
-  message?: {
-    chat?: {
-      id?: number;
-      type?: string;
-    };
-  };
-  update_id: number;
-};
-
-async function resolveTelegramChatIds() {
-  if (!telegramBotToken) {
-    return [];
-  }
-
-  if (telegramChatIds.length > 0) {
-    return telegramChatIds;
-  }
-
-  try {
-    const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/getUpdates`, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(10_000),
-    });
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = (await response.json().catch(() => null)) as
-      | {
-          ok?: boolean;
-          result?: TelegramUpdate[];
-        }
-      | null;
-
-    if (!data?.ok || !Array.isArray(data.result)) {
-      return [];
-    }
-
-    const recentChat = [...data.result]
-      .reverse()
-      .map((update) => update.message?.chat ?? update.channel_post?.chat)
-      .find((chat) => chat?.id && chat.type && ["private", "group", "supergroup"].includes(chat.type));
-
-    return recentChat?.id ? [String(recentChat.id)] : [];
-  } catch {
-    return [];
   }
 }
