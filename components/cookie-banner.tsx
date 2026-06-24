@@ -62,12 +62,21 @@ export function CookieBanner({ yandexMetrikaId }: Props) {
       return;
     }
 
+    if (storedConsent === "no") {
+      return;
+    }
+
     setVisible(true);
   }, [yandexMetrikaId]);
 
   function handleAccept() {
     window.localStorage.setItem(consentStorageKey, "ok");
     loadYandexMetrika(yandexMetrikaId);
+    setVisible(false);
+  }
+
+  function handleReject() {
+    window.localStorage.setItem(consentStorageKey, "no");
     setVisible(false);
   }
 
@@ -87,6 +96,13 @@ export function CookieBanner({ yandexMetrikaId }: Props) {
           .
         </div>
         <div className="flex shrink-0 gap-3">
+          <button
+            className="inline-flex h-11 items-center justify-center rounded-full border border-slate-200 px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            onClick={handleReject}
+            type="button"
+          >
+            Только необходимые
+          </button>
           <Link
             className="inline-flex h-11 items-center justify-center rounded-full border border-sky-200 px-5 text-sm font-medium text-sky-900 transition hover:bg-sky-50"
             href="/cookies"

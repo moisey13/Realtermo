@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { leadSchema } from "@/lib/lead";
-import { createAdminAuditLog, createLead } from "@/lib/leads-db";
+import { sendLeadEmail } from "@/lib/mailer";
 import { getRateLimitKey, isRateLimited } from "@/lib/rate-limit";
-import { getRequestIp } from "@/lib/request";
 
 const noStoreHeaders = {
   "Cache-Control": "no-store, max-age=0",
@@ -74,51 +73,29 @@ export async function POST(request: Request) {
           )
         : {};
 
-    const result = createLead({
-      comment: payload.message?.trim() || null,
+    await sendLeadEmail({
       email: payload.email?.trim() || null,
       extraFields,
-      name: payload.name,
+      message: payload.message?.trim() || null,
+      name: payload.name.trim(),
       pageUrl: sourceUrl,
       phone: payload.phone,
     });
 
-    createAdminAuditLog({
-      action: result.duplicate ? "lead.duplicate" : "lead.created",
-      actor: "site-form",
-      details: {
-        hasEmail: Boolean(payload.email?.trim()),
-        hasMessage: Boolean(payload.message?.trim()),
-        pageUrl: sourceUrl,
-      },
-      ip: getRequestIp(request),
-      target: String(result.id),
-    });
-
-    if (result.duplicate) {
-      return NextResponse.json(
-        {
-          ok: true,
-          message: "Такая заявка уже была недавно отправлена. Мы свяжемся с вами.",
-        },
-        { headers: noStoreHeaders },
-      );
-    }
-
     return NextResponse.json(
       {
         ok: true,
-        message: "Заявка сохранена. Мы свяжемся с вами.",
+        message: "Заявка отправлена. Мы свяжемся с вами.",
       },
       { headers: noStoreHeaders },
     );
   } catch (error) {
-    console.error("[lead] Failed to save lead", error);
+    console.error("[lead] Failed to send lead email", error);
 
     return NextResponse.json(
       {
         ok: false,
-        message: "Не удалось сохранить заявку. Попробуйте еще раз или свяжитесь с магазином по телефону.",
+        message: "Не удалось отправить заявку. Попробуйте еще раз или свяжитесь с магазином по телефону.",
       },
       { status: 500, headers: noStoreHeaders },
     );

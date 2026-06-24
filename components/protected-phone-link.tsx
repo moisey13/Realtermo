@@ -49,7 +49,7 @@ export function ProtectedPhoneLink({
 
       window.location.href = result.redirectUrl;
     } catch {
-      setNotice("Не удалось начать звонок. Попробуйте ещё раз или напишите в Telegram.");
+      setNotice("Не удалось начать звонок. Попробуйте ещё раз.");
     } finally {
       setIsPending(false);
     }

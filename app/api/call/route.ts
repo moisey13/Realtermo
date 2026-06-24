@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        message: "Слишком много попыток звонка за короткое время. Попробуйте чуть позже или напишите в Telegram.",
+        message: "Слишком много попыток звонка за короткое время. Попробуйте чуть позже.",
       },
       { status: 429, headers: noStoreHeaders },
     );

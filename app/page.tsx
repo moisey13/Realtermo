@@ -12,7 +12,6 @@ import {
   MessageCircle,
   MessageSquareMore,
   Phone,
-  Send,
   ShowerHead,
   Truck,
   Wrench,
@@ -33,8 +32,6 @@ import {
   maxHref,
   phoneE164,
   siteUrl,
-  telegram,
-  telegramHref,
   yandexMapHref,
 } from "@/lib/site";
 
@@ -46,9 +43,6 @@ const outlineButtonClass =
   "border-sky-200/80 bg-white/76 text-sky-900 shadow-[0_14px_35px_rgba(59,130,246,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-sky-50/92 hover:text-sky-950 hover:shadow-[0_22px_44px_rgba(59,130,246,0.18)]";
 const mapButtonClass =
   "min-h-16 rounded-full border-sky-300/90 bg-white/88 px-8 text-base font-semibold text-sky-950 shadow-[0_22px_50px_rgba(59,130,246,0.18)] ring-1 ring-white/65 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-[0_30px_60px_rgba(59,130,246,0.24)] sm:min-h-18 sm:px-10 sm:text-lg";
-const secondaryButtonClass =
-  "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_42px_rgba(14,165,233,0.12)]";
-
 const benefits = [
   { title: "Большой опыт", text: "17 лет на рынке сантехники.", icon: Clock },
   { title: "Большой выбор", text: "Товары для дома, ремонта и инженерных систем.", icon: ShowerHead },
@@ -148,7 +142,7 @@ const localBusinessSchema = {
     streetAddress: "ул. Кутузова, 15",
   },
   areaServed: "Мыски",
-  sameAs: [telegramHref, maxHref],
+  sameAs: [maxHref],
   contactPoint: [
     {
       "@type": "ContactPoint",
@@ -225,12 +219,6 @@ export default function Home() {
             <ProtectedPhoneLink
               className={`inline-flex h-12 items-center justify-center gap-2 rounded-full px-8 text-base font-medium ${callButtonClass}`}
             />
-            <Button asChild size="lg" variant="secondary" className={secondaryButtonClass}>
-              <a href={telegramHref} rel="noopener noreferrer" target="_blank">
-                <Send data-icon="inline-start" />
-                Написать в Telegram
-              </a>
-            </Button>
             <Button asChild size="lg" variant="outline" className={outlineButtonClass}>
               <a href={maxHref} rel="noopener noreferrer" target="_blank">
                 <MessageSquareMore data-icon="inline-start" />
@@ -366,19 +354,13 @@ export default function Home() {
                 Уточните наличие, подбор или доставку
               </CardTitle>
               <CardDescription className="text-base leading-7">
-                Можно написать в Telegram или Max: подскажем по наличию, поможем подобрать товар или аналог,
+                Можно написать в Max: подскажем по наличию, поможем подобрать товар или аналог,
                 сориентируем по срокам и стоимости доставки.
               </CardDescription>
               <div className="flex flex-col gap-3 pt-4 sm:flex-row">
                 <ProtectedPhoneLink
                   className={`inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-sm font-medium ${callButtonClass}`}
                 />
-                <Button asChild variant="outline" className={outlineButtonClass}>
-                  <a href={telegramHref} rel="noopener noreferrer" target="_blank">
-                    <MessageCircle data-icon="inline-start" />
-                    {telegram}
-                  </a>
-                </Button>
                 <Button asChild variant="outline" className={outlineButtonClass}>
                   <a href={maxHref} rel="noopener noreferrer" target="_blank">
                     <MessageSquareMore data-icon="inline-start" />
@@ -431,8 +413,6 @@ export default function Home() {
                 title="Телефон"
                 text={<ProtectedPhoneLink className="inline-flex items-center gap-2 text-left" showIcon={false} />}
               />
-              <Separator />
-              <ContactRow icon={MessageCircle} title="Telegram" text={telegram} href={telegramHref} />
               <Separator />
               <ContactRow icon={MessageSquareMore} title="Max" text="Написать в Max" href={maxHref} />
             </CardContent>
@@ -507,8 +487,8 @@ export default function Home() {
             className={`inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-sm font-medium ${callButtonClass}`}
           />
           <Button asChild variant="secondary">
-            <a href={telegramHref} rel="noopener noreferrer" target="_blank">
-              <Send data-icon="inline-start" />
+            <a href={maxHref} rel="noopener noreferrer" target="_blank">
+              <MessageSquareMore data-icon="inline-start" />
               Написать
             </a>
           </Button>

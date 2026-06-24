@@ -94,7 +94,7 @@ export function LeadForm() {
       }
 
       setStatus("error");
-      setNotice(result.message ?? "Не удалось отправить заявку. Позвоните нам или напишите в Telegram.");
+      setNotice(result.message ?? "Не удалось отправить заявку. Позвоните нам, пожалуйста.");
     } catch {
       setStatus("error");
       setNotice("Нет связи с сайтом. Попробуйте еще раз или свяжитесь с магазином по телефону.");
